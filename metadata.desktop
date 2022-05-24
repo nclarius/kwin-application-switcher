@@ -8,7 +8,7 @@ Comment=Collectively raise all windows of the same application when switching ta
 Icon=preferences-system-windows
 
 X-KDE-PluginInfo-Name=applicationswitcher
-X-KDE-PluginInfo-Version=1.0
+X-KDE-PluginInfo-Version=1.1
 X-KDE-PluginInfo-Author=Natalie Clarius
 X-KDE-PluginInfo-Email=natalie_clarius@yahoo.de
 X-KDE-PluginInfo-License=GPLv3.0

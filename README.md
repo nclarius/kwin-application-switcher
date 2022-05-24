@@ -4,9 +4,9 @@
 
 Extension for KDE's window manager to automatically raise all other visible windows of the same application together when activating one of them.
 
-This creates an application-centric task switching workflow as known from environments such as GNOME or MacOS, which allows for two levels of task switching: one mode for switching applications and one mode for switching between windows of an application. 
+This creates an application-centric task switching workflow as known from environments such as GNOME or MacOS, where an application’s windows are treated as a group, and task switching can take place at two levels: one mode for switching applications and one mode for switching between windows of an application. 
 
-Raising all of an application's windows whenever the application is entered means that all windows belonging to the application are available at the front, and closing or minimizing a window will keep focus on the same application, as the window switched to will be the most recently active one of that application provided that there is any, rather than the most recently active window overall which may belong to a different application.
+Raising all windows collectively whenever the application is entered means that all windows belonging to the application are available at the front, and closing or minimizing a window will keep focus on the same application, as the window switched to will be the most recently active one of that application provided that there is any, rather than the most recently active window overall which may belong to a different application.
 
 Seen in the screencast: Switching from Konsole back to Dolphin also brings the other Dolphin window in front of the Konsole windows - unlike with the default behavior, where the right Konsole window, being the second most recently active one, would remain on top of the center Dolphin window.
 
@@ -20,7 +20,7 @@ Seen in the screencast: Switching from Konsole back to Dolphin also brings the o
 
 ### Installation via graphical interface
 
-**Please make sure to select the most recent version (v1.0)** in the installation process.
+**Please make sure to select the most recent version (v1.1)** in the installation process.
 
 A [bug](https://bugs.kde.org/show_bug.cgi?id=453521) in Discover causes a wrong version to be installed, so using the installation module in System Settings instead is recommended.
 
@@ -40,7 +40,7 @@ cd kwin-application-switcher
 ### Tips
 
 If you are intending to have one mode for switching applications and one mode for switching application windows, you may want to use the following settings:
-- Task Switcher (Alt+Tab popup): 
+- Task Switcher (Alt+Tab popup):  
   System Settings > Window Management > Task Switcher >  
   - Main (for switching between applications) >
     - Visualization: Large Icons
@@ -66,7 +66,7 @@ This work is licensed under the GNU General Public License v3.0.
 This program comes with absolutely no warranty.  
 This is free software, and you are welcome to redistribute and/or modify it under certain conditions.  
 
-Development was sponsored by user RedBearAK.
+Development was sponsored by user [RedBearAK](https://github.com/RedBearAK).
 
 If you would like to thank me, you can always make me happy with a review or a cup of coffee:  
 <a href="https://store.kde.org/p/1619690"><img src="https://raw.githubusercontent.com/nclarius/Plasma-window-decorations/main/.img/kdestore.png" height="25"/></a> <a href="https://www.paypal.com/donate/?hosted_button_id=7LUUJD83BWRM4"><img src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" height="25"/></a>&nbsp;&nbsp;<a href="https://www.buymeacoffee.com/nclarius"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="25"/></a>
