@@ -1,6 +1,6 @@
 # Application Switcher
 
-[latest release](https://github.com/nclarius/application-switcher/releases/latest) | [view in KDE store]()
+[latest release](https://github.com/nclarius/application-switcher/releases/latest) | [view in KDE store](https://www.pling.com/p/1805105/)
 
 Extension for KDE's window manager to automatically raise all other windows of the same application together when activating one of them.
 
@@ -28,8 +28,8 @@ A [bug](https://bugs.kde.org/show_bug.cgi?id=453521) in Discover causes a wrong 
 ### Installation via command line
 
 ```bash
-git clone https://github.com/nclarius/application-switcher.git
-cd application-switcher
+git clone https://github.com/nclarius/kwin-application-switcher.git
+cd kwin-application-switcher
 ./install.sh
 ```
 
