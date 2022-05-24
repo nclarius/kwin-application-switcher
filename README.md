@@ -4,9 +4,9 @@
 
 Extension for KDE's window manager to automatically raise all other visible windows of the same application together when activating one of them.
 
-This creates an application-centric task switching workflow as known from environments such as GNOME or MacOS, which allows for two levels of task switching: one mode for switching applications and one mode for switching between windows of an application. 
+This creates an application-centric task switching workflow as known from environments such as GNOME or MacOS, where an application’s windows are treated as a group, and task switching can take place at two levels: one mode for switching applications and one mode for switching between windows of an application. 
 
-Raising all of an application's windows whenever the application is entered means that all windows belonging to the application are available at the front, and closing or minimizing a window will keep focus on the same application, as the window switched to will be the most recently active one of that application provided that there is any, rather than the most recently active window overall which may belong to a different application.
+Raising all windows collectively whenever the application is entered means that all windows belonging to the application are available at the front, and closing or minimizing a window will keep focus on the same application, as the window switched to will be the most recently active one of that application provided that there is any, rather than the most recently active window overall which may belong to a different application.
 
 Seen in the screencast: Switching from Konsole back to Dolphin also brings the other Dolphin window in front of the Konsole windows - unlike with the default behavior, where the right Konsole window, being the second most recently active one, would remain on top of the center Dolphin window.
 
