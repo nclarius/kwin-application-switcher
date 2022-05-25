@@ -51,7 +51,7 @@ setPrevActiveApp(workspace.activeClient);
 // set previously active application for recently activated window
 function setPrevActiveApp(current) {
     if (!current) return;
-    prevActiveApp = String(current.resourceClass);
+    prevActiveApp = getApp(current);
 }
 
 // get previously active application
@@ -75,8 +75,8 @@ function updateAppGroups(current) {
     if (!current) return;
     let app = getApp(current);
     if (!appGroups[app]) appGroups[app] = [];
-    appGroups[app] = appGroups[app].filter(window => window);
-    appGroups[app] = appGroups[app].filter(window => window != current);
+    appGroups[app] = appGroups[app].filter(window => window && 
+        window != current);
     appGroups[app].push(current);
     debug("updating app group", appGroups[app].map(window => window.caption));
 }
@@ -84,8 +84,8 @@ function updateAppGroups(current) {
 // return other visible windows of same application as given window
 function getAppGroup(current) {
     if (!current) return;
-    let appGroup = appGroups[getApp(current)].filter(window => 
-        window && !window.minimized && 
+    let appGroup = appGroups[getApp(current)].filter(window => window && 
+        !window.minimized && 
         (window.desktop == current.desktop ||
          window.onAllDesktops || current.onAllDesktops));
     debug("getting app group", appGroup.map(window => window.caption));
@@ -101,12 +101,13 @@ function getAppGroup(current) {
 var autoActivated = [];
 
 function addAutoActivated(current) {
-    autoActivated = autoActivated.filter(window => window && window != current);
+    autoActivated = autoActivated.filter(window => window && 
+        window != current);
     autoActivated.push(current);
 }
 
-function delAutoActivated(current) {
-    autoActivated = autoActivated.filter(window => window && window != current);
+function clearAutoActivated() {
+    autoActivated = [];
 }
 
 ///////////////////////
@@ -116,31 +117,32 @@ function delAutoActivated(current) {
 // when client is activated, auto-raise other windows of the same applicaiton
 workspace.clientActivated.connect(active => {
     if (!active) return;
-    debug("");
+    debug("---------");
     debug("activated", active.caption);
     debug("app", getApp(active));
     // abort if application is ignored
     if (ignoredApps.includes(getApp(active))) {
+        debug("ignored");
         return;
     }
     // abort if current activation was due to auto-raise
     if (autoActivated.includes(active)) {
-        delAutoActivated(active);
+        debug("auto-raised");
         return;
     }
-
     updateAppGroups(active);
 
     // if application was switched
+    debug("previous app", getPrevActiveApp());
     if (getApp(active) != getPrevActiveApp()) {
         debug("app switched");
+        clearAutoActivated();
         // auto-raise other windows of same application
         for (let window of getAppGroup(active)) {
             debug("auto-raising", window.caption);
             addAutoActivated(window);
             workspace.activeClient = window;
         }
+        setPrevActiveApp(active);
     }
-
-    setPrevActiveApp(active);
 });
