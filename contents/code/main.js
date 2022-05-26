@@ -94,24 +94,7 @@ function getAppGroup(current) {
 
 
 ///////////////////////
-// keep track of auto-raised windows
-///////////////////////
-
-// [dolphin window 1, dolphin window 2, ...]
-var autoActivated = [];
-
-function addAutoActivated(current) {
-    autoActivated = autoActivated.filter(window => window && 
-        window != current);
-    autoActivated.push(current);
-}
-
-function clearAutoActivated() {
-    autoActivated = [];
-}
-
-///////////////////////
-// application switching
+// main
 ///////////////////////
 
 // when client is activated, auto-raise other windows of the same applicaiton
@@ -125,22 +108,15 @@ workspace.clientActivated.connect(active => {
         debug("ignored");
         return;
     }
-    // abort if current activation was due to auto-raise
-    if (autoActivated.includes(active)) {
-        debug("auto-raised");
-        return;
-    }
     updateAppGroups(active);
 
     // if application was switched
     debug("previous app", getPrevActiveApp());
     if (getApp(active) != getPrevActiveApp()) {
         debug("app switched");
-        clearAutoActivated();
         // auto-raise other windows of same application
         for (let window of getAppGroup(active)) {
             debug("auto-raising", window.caption);
-            addAutoActivated(window);
             workspace.activeClient = window;
         }
         setPrevActiveApp(active);
