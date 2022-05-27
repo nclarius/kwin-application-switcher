@@ -114,11 +114,11 @@ workspace.clientActivated.connect(active => {
     debug("previous app", getPrevActiveApp());
     if (getApp(active) != getPrevActiveApp()) {
         debug("app switched");
+        setPrevActiveApp(active);
         // auto-raise other windows of same application
         for (let window of getAppGroup(active)) {
             debug("auto-raising", window.caption);
             workspace.activeClient = window;
         }
-        setPrevActiveApp(active);
     }
 });
