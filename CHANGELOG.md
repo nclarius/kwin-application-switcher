@@ -1,3 +1,6 @@
+## v1.4
+- fix lag
+
 ## v1.3
 - fix order among windows of an application group sometimes not applied correctly
 
