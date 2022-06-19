@@ -43,7 +43,21 @@ function getApp(current) {
 ///////////////////////
 
 // "dolphin"
-var prevApp = workspace.activeClient ? getApp(workspace.activeClient) : "";
+var prevActiveApp = ""
+
+// set previously active application for initially active window
+setPrevActiveApp(workspace.activeClient);
+
+// set previously active application for recently activated window
+function setPrevActiveApp(current) {
+    if (!current) return;
+    prevActiveApp = getApp(current);
+}
+
+// get previously active application
+function getPrevActiveApp() {
+    return prevActiveApp;
+}
 
 
 ///////////////////////
@@ -60,10 +74,11 @@ workspace.clientList().forEach(window => updateAppGroups(window));
 function updateAppGroups(current) {
     if (!current) return;
     let app = getApp(current);
-    let appGroup = (appGroups[app] ? appGroups[app] : [])
-        .filter(window => window && window != current).concat(current);
-    debug("updating app group", appGroup.map(window => window.caption));
-    appGroup[app] = appGroup;
+    if (!appGroups[app]) appGroups[app] = [];
+    appGroups[app] = appGroups[app].filter(window => window && 
+        window != current);
+    appGroups[app].push(current);
+    debug("updating app group", appGroups[app].map(window => window.caption));
 }
 
 // return other visible windows of same application as given window
@@ -85,22 +100,21 @@ function getAppGroup(current) {
 // when client is activated, auto-raise other windows of the same applicaiton
 workspace.clientActivated.connect(active => {
     if (!active) return;
-    let app = getApp(active);
     debug("---------");
     debug("activated", active.caption);
     debug("app", getApp(active));
     // abort if application is ignored
-    if (ignoredApps.includes(app)) {
+    if (ignoredApps.includes(getApp(active))) {
         debug("ignored");
         return;
     }
     updateAppGroups(active);
 
     // if application was switched
-    debug("previous app", prevApp);
-    if (app != prevApp) {
+    debug("previous app", getPrevActiveApp());
+    if (getApp(active) != getPrevActiveApp()) {
         debug("app switched");
-        prevApp = app;
+        setPrevActiveApp(active);
         // auto-raise other windows of same application
         for (let window of getAppGroup(active)) {
             debug("auto-raising", window.caption);
