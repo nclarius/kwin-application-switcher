@@ -1,0 +1,23 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "natalie_clarius@yahoo.de",
+                "Name": "Natalie Clarius"
+            }
+        ],
+        "Description": "Collectively raises all windows of the same application when switching tasks",
+        "Icon": "preferences-system-windows",
+        "Id": "applicationswitcher",
+        "License": "GPLv3.0",
+        "Name": "Application Switcher",
+        "ServiceTypes": [
+            "KWin/Script",
+            "KCModule"
+        ],
+        "Version": "1.5",
+        "Website": ""
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}
