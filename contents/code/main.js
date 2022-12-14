@@ -86,8 +86,8 @@ function getAppGroup(current) {
     if (!current) return;
     let appGroup = appGroups[getApp(current)].filter(window => window && 
         !window.minimized && 
-        (window.desktop == current.desktop ||
-         window.onAllDesktops || current.onAllDesktops));
+        (window.x11DesktopIds.includes(workspace.currentDesktop) || window.x11DesktopIds.length == 0) &&
+        (window.activities.includes(workspace.currentActivity) || window.activities.length == 0));
     debug("getting app group", appGroup.map(window => window.caption));
     return appGroup;
 }
