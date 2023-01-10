@@ -68,5 +68,4 @@ This is free software, and you are welcome to redistribute and/or modify it unde
 
 Development was sponsored by user [RedBearAK](https://github.com/RedBearAK).
 
-If you would like to thank me, you can always make me happy with a review or a cup of coffee:  
-<a href="https://store.kde.org/p/1619690"><img src="https://raw.githubusercontent.com/nclarius/Plasma-window-decorations/main/.img/kdestore.png" height="25"/></a> <a href="https://www.paypal.com/donate/?hosted_button_id=7LUUJD83BWRM4"><img src="https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif" height="25"/></a>&nbsp;&nbsp;<a href="https://www.buymeacoffee.com/nclarius"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="25"/></a>
+If you like this project, you can make me happy with a review on [Pling]("https://store.kde.org/p/1619690).
