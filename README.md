@@ -68,4 +68,4 @@ This is free software, and you are welcome to redistribute and/or modify it unde
 
 Development was sponsored by user [RedBearAK](https://github.com/RedBearAK).
 
-If you like this project, you can make me happy with a review on [Pling]("https://store.kde.org/p/1619690).
+If you like this project, you can make me happy with a review on [Pling](https://store.kde.org/p/1619690).
