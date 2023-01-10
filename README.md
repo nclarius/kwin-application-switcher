@@ -60,7 +60,7 @@ If you are intending to have one mode for switching applications and one mode fo
 
 ## Small Print
 
-© 2022 Natalie Clarius \<natalie_clarius@yahoo.de\>
+© 2022-2023 Natalie Clarius \<natalie_clarius@yahoo.de\> [nclarius.github.io](https://nclarius.github.io)
 
 This work is licensed under the GNU General Public License v3.0.  
 This program comes with absolutely no warranty.  
@@ -68,4 +68,4 @@ This is free software, and you are welcome to redistribute and/or modify it unde
 
 Development was sponsored by user [RedBearAK](https://github.com/RedBearAK).
 
-If you like this project, you can make me happy with a review in the [store](https://store.kde.org/p/1619690).
+If you like this project, you can make me happy with a review in the [app store](https://store.kde.org/p/1619690).
