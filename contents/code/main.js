@@ -33,7 +33,7 @@ const ignoredApps = ["plasmashell", "org.kde.plasmashell", // desktop shell
 
 // "dolphin"
 function getApp(current) {
-    if (!current) return "";
+    if (!current || typeof current.resourceClass !== 'string') return "";
     return String(current.resourceClass);
 }
 
@@ -78,17 +78,31 @@ function updateAppGroups(current) {
     appGroups[app] = appGroups[app].filter(window => window && 
         window != current);
     appGroups[app].push(current);
-    debug("updating app group", appGroups[app].map(window => window.caption));
+    debug("updating app group", appGroups[app].map(window =>
+        window && window.caption ? window.caption : "undefined window"
+    ));
 }
 
 // return other visible windows of same application as given window
 function getAppGroup(current) {
     if (!current) return;
-    let appGroup = appGroups[getApp(current)].filter(window => window && 
-        !window.minimized && 
-        (window.x11DesktopIds.includes(workspace.currentDesktop) || window.x11DesktopIds.length == 0) &&
-        (window.activities.includes(workspace.currentActivity) || window.activities.length == 0));
-    debug("getting app group", appGroup.map(window => window.caption));
+
+    let appGroup = appGroups[getApp(current)].filter(window =>
+        window &&
+        !window.minimized &&
+        (
+            (window.x11DesktopIds && window.x11DesktopIds.includes(workspace.currentDesktop)) ||
+            (window.x11DesktopIds && window.x11DesktopIds.length === 0)
+        ) &&
+        (
+            (window.activities && window.activities.includes(workspace.currentActivity)) ||
+            (window.activities && window.activities.length === 0)
+        )
+    );
+
+    debug("getting app group", appGroup.map(window =>
+        window && window.caption ? window.caption : "undefined window"
+    ));
     return appGroup;
 }
 
@@ -117,8 +131,10 @@ workspace.clientActivated.connect(active => {
         setPrevActiveApp(active);
         // auto-raise other windows of same application
         for (let window of getAppGroup(active)) {
-            debug("auto-raising", window.caption);
-            workspace.activeClient = window;
+            if (window) {
+                debug("auto-raising", window.caption);
+                workspace.activeClient = window;
+            }
         }
     }
 });
