@@ -10,7 +10,7 @@ exit_w_error() {
 }
 
 remove_w_kpackagetool6() {
-    if command -v kpackagetool6; then
+    if command -v kpackagetool6 &> /dev/null; then
         echo "Removing 'Application Switcher' KWin script."
         kpackagetool6 --type=KWin/Script --remove .
     else
@@ -19,7 +19,7 @@ remove_w_kpackagetool6() {
 }
 
 remove_w_kpackagetool5() {
-    if command -v kpackagetool5; then
+    if command -v kpackagetool5 &> /dev/null; then
         echo "Removing 'Application Switcher' KWin script."
         kpackagetool5 --type=KWin/Script --remove .
     else

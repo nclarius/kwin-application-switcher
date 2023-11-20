@@ -27,9 +27,9 @@ script_path="."
 script_name=$(grep -oP '"Id":\s*"[^"]*' ./metadata.json | grep -oP '[^"]*$')
 
 if [[ ${KDE_ver} -eq 6 ]]; then
-    if command -v kpackagetool6; then
+    if command -v kpackagetool6 &> /dev/null; then
         if install_w_kpackagetool6; then
-            if command -v kwriteconfig6; then
+            if command -v kwriteconfig6 &> /dev/null; then
                 kwriteconfig6 --file kwinrc --group Plugins --key "$script_name"Enabled true
             else
                 exit_w_error "The 'kwriteconfig6' command was not found. Cannot enable KWin script."
@@ -41,9 +41,9 @@ if [[ ${KDE_ver} -eq 6 ]]; then
         echo "The 'kpackagetool6' command was not found. Cannot install KWin script."
     fi
 elif [[ ${KDE_ver} -eq 5 ]]; then
-    if command -v kpackagetool5; then
+    if command -v kpackagetool5 &> /dev/null; then
         if install_w_kpackagetool5; then
-            if command -v kwriteconfig5; then
+            if command -v kwriteconfig5 &> /dev/null; then
                 kwriteconfig5 --file kwinrc --group Plugins --key "$script_name"Enabled true
             else
                 exit_w_error "The 'kwriteconfig5' command was not found. Cannot enable KWin script."
