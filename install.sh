@@ -11,14 +11,16 @@ exit_w_error() {
 
 install_w_kpackagetool6() {
     echo "Installing KWin script: '${script_name}'"
-    kpackagetool6 --type="${script_type}" --install "${script_path}" || \
+    if ! kpackagetool6 --type="${script_type}" --install "${script_path}" &> /dev/null; then
         kpackagetool6 --type="${script_type}" --upgrade "${script_path}"
+    fi
 }
 
 install_w_kpackagetool5() {
     echo "Installing KWin script: '${script_name}'"
-    kpackagetool5 --type="${script_type}" --install "${script_path}" || \
+    if ! kpackagetool5 --type="${script_type}" --install "${script_path}" &> /dev/null; then
         kpackagetool5 --type="${script_type}" --upgrade "${script_path}"
+    fi
 }
 
 KDE_ver=${KDE_SESSION_VERSION:-0}
