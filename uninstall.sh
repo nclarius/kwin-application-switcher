@@ -67,9 +67,9 @@ for cmd in "${dbus_commands[@]}"; do
     if command -v "${cmd}" &> /dev/null; then
         # Call the corresponding function based on the command
         case "$cmd" in
-            qdbus)      reconfigure_w_qdbus ;;
-            gdbus)      reconfigure_w_gdbus ;;
-            dbus-send)  reconfigure_w_dbus_send ;;
+            qdbus)              reconfigure_w_qdbus &> /dev/null;;
+            gdbus)              reconfigure_w_gdbus &> /dev/null ;;
+            dbus-send)          reconfigure_w_dbus_send &> /dev/null ;;
         esac
         # Break out of the loop once a command is found and executed
         break
