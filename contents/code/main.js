@@ -17,6 +17,18 @@ debug("initializing");
 // Detect KDE version
 const isKDE6 = typeof workspace.windowList === 'function';
 
+function isAppOnCurrentDesktopKDE6(window) {
+    return window &&
+    (window.desktops && window.desktops.includes(workspace.currentDesktop)) ||
+    (window.desktops && window.desktops.length === 0);
+}
+
+function isAppOnCurrentDesktopKDE5(window) {
+    return window &&
+    (window.x11DesktopIds && window.x11DesktopIds.includes(workspace.currentDesktop)) ||
+    (window.x11DesktopIds && window.x11DesktopIds.length === 0);
+}
+
 let activeWindow;
 let windowList;
 let connectWindowActivated;
@@ -29,17 +41,13 @@ if (isKDE6) {
     windowList                  = () => workspace.windowList();
     connectWindowActivated      = (handler) => workspace.windowActivated.connect(handler);
     setActiveWindow             = (window) => { workspace.activeWindow = window; };
-    isAppOnCurrentDesktop       = (window) => 
-        (window.desktops && window.desktops.includes(workspace.currentDesktop)) ||
-        (window.desktops && window.desktops.length === 0);
+    isAppOnCurrentDesktop       = isAppOnCurrentDesktopKDE6
 } else {
     activeWindow                = () => workspace.activeClient;
     windowList                  = () => workspace.clientList();
     connectWindowActivated      = (handler) => workspace.clientActivated.connect(handler);
     setActiveWindow             = (window) => { workspace.activeClient = window; };
-    isAppOnCurrentDesktop       = (window) => 
-        (window.x11DesktopIds && window.x11DesktopIds.includes(workspace.currentDesktop)) ||
-        (window.x11DesktopIds && window.x11DesktopIds.length === 0);
+    isAppOnCurrentDesktop       = isAppOnCurrentDesktopKDE5
 }
 
 ///////////////////////
@@ -123,10 +131,15 @@ function getFilterConditions(window) {
 // return other visible windows of same application as given window
 function getAppGroup(current) {
     if (!current) return;
-    
-    let appGroup = appGroups[getApp(current)].filter(getFilterConditions);
 
-    debug("getting app group", appGroup.map(window =>
+    unfilteredAppGroup = appGroups[getApp(current)];
+    debug("unfiltered app group", unfilteredAppGroup.map(window =>
+        window && window.caption ? window.caption : "undefined window"));
+
+    // let appGroup = appGroups[getApp(current)].filter(getFilterConditions);
+    let appGroup = unfilteredAppGroup.filter(getFilterConditions);
+
+    debug("filtered app group", appGroup.map(window =>
         window && window.caption ? window.caption : "undefined window"
     ));
     return appGroup;
