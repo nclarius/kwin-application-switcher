@@ -21,6 +21,7 @@ let activeWindow;
 let windowList;
 let connectWindowActivated;
 let setActiveWindow;
+let isAppOnCurrentDesktop;
 
 // Set up aliases to abstract away the API differences between KDE 5 and KDE 6
 if (isKDE6) {
@@ -28,11 +29,17 @@ if (isKDE6) {
     windowList                  = () => workspace.windowList();
     connectWindowActivated      = (handler) => workspace.windowActivated.connect(handler);
     setActiveWindow             = (window) => { workspace.activeWindow = window; };
+    isAppOnCurrentDesktop       = (window) => 
+        (window.desktops && window.desktops.includes(workspace.currentDesktop)) ||
+        (window.desktops && window.desktops.length === 0);
 } else {
     activeWindow                = () => workspace.activeClient;
     windowList                  = () => workspace.clientList();
     connectWindowActivated      = (handler) => workspace.clientActivated.connect(handler);
     setActiveWindow             = (window) => { workspace.activeClient = window; };
+    isAppOnCurrentDesktop       = (window) => 
+        (window.x11DesktopIds && window.x11DesktopIds.includes(workspace.currentDesktop)) ||
+        (window.x11DesktopIds && window.x11DesktopIds.length === 0);
 }
 
 ///////////////////////
@@ -103,22 +110,21 @@ function updateAppGroups(current) {
     ));
 }
 
+function isAppOnCurrentActivity(window) {
+    return (window.activities && window.activities.includes(workspace.currentActivity)) ||
+            (window.activities && window.activities.length === 0);
+}
+
+function getFilterConditions(window) {
+    return window && !window.minimized && 
+            isAppOnCurrentDesktop(window) && isAppOnCurrentActivity(window);
+}
+
 // return other visible windows of same application as given window
 function getAppGroup(current) {
     if (!current) return;
     
-    let appGroup = appGroups[getApp(current)].filter(window =>
-        window && 
-        !window.minimized && 
-        (
-            (window.x11DesktopIds && window.x11DesktopIds.includes(workspace.currentDesktop)) ||
-            (window.x11DesktopIds && window.x11DesktopIds.length === 0)
-        ) &&
-        (
-            (window.activities && window.activities.includes(workspace.currentActivity)) ||
-            (window.activities && window.activities.length === 0)
-        )
-    );
+    let appGroup = appGroups[getApp(current)].filter(getFilterConditions);
 
     debug("getting app group", appGroup.map(window =>
         window && window.caption ? window.caption : "undefined window"
