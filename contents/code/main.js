@@ -14,6 +14,41 @@ function debug(...args) {
 }
 debug("initializing");
 
+// Detect KDE version
+const isKDE6 = typeof workspace.windowList === 'function';
+
+function isAppOnCurrentDesktopKDE6(window) {
+    return window &&
+    (window.desktops && window.desktops.includes(workspace.currentDesktop)) ||
+    (window.desktops && window.desktops.length === 0);
+}
+
+function isAppOnCurrentDesktopKDE5(window) {
+    return window &&
+    (window.x11DesktopIds && window.x11DesktopIds.includes(workspace.currentDesktop)) ||
+    (window.x11DesktopIds && window.x11DesktopIds.length === 0);
+}
+
+let activeWindow;
+let windowList;
+let connectWindowActivated;
+let setActiveWindow;
+let isAppOnCurrentDesktop;
+
+// Set up aliases to abstract away the API differences between KDE 5 and KDE 6
+if (isKDE6) {
+    activeWindow                = () => workspace.activeWindow;
+    windowList                  = () => workspace.windowList();
+    connectWindowActivated      = (handler) => workspace.windowActivated.connect(handler);
+    setActiveWindow             = (window) => { workspace.activeWindow = window; };
+    isAppOnCurrentDesktop       = isAppOnCurrentDesktopKDE6
+} else {
+    activeWindow                = () => workspace.activeClient;
+    windowList                  = () => workspace.clientList();
+    connectWindowActivated      = (handler) => workspace.clientActivated.connect(handler);
+    setActiveWindow             = (window) => { workspace.activeClient = window; };
+    isAppOnCurrentDesktop       = isAppOnCurrentDesktopKDE5
+}
 
 ///////////////////////
 // special applications to ignore
@@ -33,7 +68,7 @@ const ignoredApps = ["plasmashell", "org.kde.plasmashell", // desktop shell
 
 // "dolphin"
 function getApp(current) {
-    if (!current) return "";
+    if (!current || typeof current.resourceClass !== 'string') return "";
     return String(current.resourceClass);
 }
 
@@ -46,7 +81,7 @@ function getApp(current) {
 var prevActiveApp = ""
 
 // set previously active application for initially active window
-setPrevActiveApp(workspace.activeClient);
+setPrevActiveApp(activeWindow())
 
 // set previously active application for recently activated window
 function setPrevActiveApp(current) {
@@ -68,7 +103,7 @@ function getPrevActiveApp() {
 var appGroups = {};
 
 // compute app groups for initially present windows
-workspace.clientList().forEach(window => updateAppGroups(window));
+windowList().forEach(window => updateAppGroups(window));
 
 // update app groups with given window
 function updateAppGroups(current) {
@@ -78,17 +113,35 @@ function updateAppGroups(current) {
     appGroups[app] = appGroups[app].filter(window => window && 
         window != current);
     appGroups[app].push(current);
-    debug("updating app group", appGroups[app].map(window => window.caption));
+    debug("updating app group", appGroups[app].map(window =>
+        window && window.caption ? window.caption : "undefined window"
+    ));
+}
+
+function isAppOnCurrentActivity(window) {
+    return (window.activities && window.activities.includes(workspace.currentActivity)) ||
+            (window.activities && window.activities.length === 0);
+}
+
+function getFilterConditions(window) {
+    return window && !window.minimized && 
+            isAppOnCurrentDesktop(window) && isAppOnCurrentActivity(window);
 }
 
 // return other visible windows of same application as given window
 function getAppGroup(current) {
     if (!current) return;
-    let appGroup = appGroups[getApp(current)].filter(window => window && 
-        !window.minimized && 
-        (window.x11DesktopIds.includes(workspace.currentDesktop) || window.x11DesktopIds.length == 0) &&
-        (window.activities.includes(workspace.currentActivity) || window.activities.length == 0));
-    debug("getting app group", appGroup.map(window => window.caption));
+
+    unfilteredAppGroup = appGroups[getApp(current)];
+    debug("unfiltered app group", unfilteredAppGroup.map(window =>
+        window && window.caption ? window.caption : "undefined window"));
+
+    // let appGroup = appGroups[getApp(current)].filter(getFilterConditions);
+    let appGroup = unfilteredAppGroup.filter(getFilterConditions);
+
+    debug("filtered app group", appGroup.map(window =>
+        window && window.caption ? window.caption : "undefined window"
+    ));
     return appGroup;
 }
 
@@ -97,8 +150,8 @@ function getAppGroup(current) {
 // main
 ///////////////////////
 
-// when client is activated, auto-raise other windows of the same applicaiton
-workspace.clientActivated.connect(active => {
+// when client is activated, auto-raise other windows of the same application
+function onWindowActivated(active) {
     if (!active) return;
     debug("---------");
     debug("activated", active.caption);
@@ -117,8 +170,12 @@ workspace.clientActivated.connect(active => {
         setPrevActiveApp(active);
         // auto-raise other windows of same application
         for (let window of getAppGroup(active)) {
-            debug("auto-raising", window.caption);
-            workspace.activeClient = window;
+            if (window) {
+                debug("auto-raising", window.caption);
+                setActiveWindow(window);
+            }
         }
     }
-});
+}
+
+connectWindowActivated(onWindowActivated);
