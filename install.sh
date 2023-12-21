@@ -21,7 +21,7 @@ install_w_kpackagetool6() {
 
 install_w_kpackagetool5() {
     if ! command -v kpackagetool5 &> /dev/null; then
-        exit_w_error "The 'kpackagetool${KDE_ver}' command was not found."
+        exit_w_error "The 'kpackagetool5' command was not found. Cannot install KWin script."
     fi
     echo "Installing KWin script: '${script_name}'"
     if ! kpackagetool5 --type="${script_type}" --install "${script_path}" &> /dev/null; then
@@ -56,7 +56,7 @@ elif [[ ${KDE_ver} -eq 6 ]]; then
     kwriteconfig6 --file kwinrc --group Plugins --key "$script_name"Enabled true
 elif [[ ${KDE_ver} -eq 5 ]]; then
     if ! install_w_kpackagetool5; then
-        exit_w_error "Problem installing '${script_name}' with kpackagetool${KDE_ver}."
+        exit_w_error "Problem installing '${script_name}' with kpackagetool5."
     fi
     if ! command -v kwriteconfig5 &> /dev/null; then
         exit_w_error "The 'kwriteconfig5' command was not found. Cannot enable KWin script."
