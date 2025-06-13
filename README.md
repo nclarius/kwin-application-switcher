@@ -20,7 +20,7 @@ Seen in the screencast: Switching from Konsole back to Dolphin also brings the o
 
 ### Installation via graphical interface
 
-**Please make sure to select the most recent version (v1.6)** in the installation process.
+**Please make sure to select the most recent version (v1.7)** in the installation process.
 
 A [bug](https://bugs.kde.org/show_bug.cgi?id=453521) in Discover causes a wrong version to be installed, so using the installation module in System Settings instead is recommended.
 
