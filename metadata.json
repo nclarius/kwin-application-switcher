@@ -1,4 +1,5 @@
 {
+    "KPackageStructure": "KWin/Script",
     "KPlugin": {
         "Authors": [
             {
@@ -11,12 +12,8 @@
         "Id": "applicationswitcher",
         "License": "GPLv3.0",
         "Name": "Application Switcher",
-        "ServiceTypes": [
-            "KWin/Script",
-            "KCModule"
-        ],
-        "Version": "1.6",
-        "Website": ""
+        "Version": "2.0",
+        "Website": "https://github.com/nclarius/kwin-application-switcher"
     },
     "X-Plasma-API": "javascript",
     "X-Plasma-MainScript": "code/main.js"

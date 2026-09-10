@@ -1,6 +1,7 @@
 /*
 KWin Script Application Switcher
-(C) 2022 Natalie Clarius <natalie_clarius@yahoo.de>
+(C) 2022-2023 Natalie Clarius <natalie_clarius@yahoo.de>
+Plasma 6 / KWin 6 port
 GNU General Public License v3.0
 */
 
@@ -8,10 +9,14 @@ GNU General Public License v3.0
 // initialization
 ///////////////////////
 
-const debugMode = readConfig("debugMode", true);
+const debugMode = readConfig("debugMode", false);
+
 function debug(...args) {
-    if (debugMode) { console.debug("applicationswitcher:", ...args); }
+    if (debugMode) {
+        console.debug("applicationswitcher:", ...args);
+    }
 }
+
 debug("initializing");
 
 
@@ -19,106 +24,171 @@ debug("initializing");
 // special applications to ignore
 ///////////////////////
 
-const ignoredApps = ["plasmashell", "org.kde.plasmashell", // desktop shell
-                     "krunner", "org.kde.krunner", // KRunner
-                     "kwin_wayland", // lock screen
-                     "org.kde.ksmserver-logout-greeter", // logout screen
-                     "ksplashqml" // login splash screen
-                    ];
+const ignoredApps = [
+    "plasmashell",
+    "org.kde.plasmashell", // desktop shell
+    "krunner",
+    "org.kde.krunner", // KRunner
+    "kwin_wayland", // lock screen / KWin internal windows
+    "org.kde.ksmserver-logout-greeter", // logout screen
+    "ksplashqml" // login splash screen
+];
 
 
 ///////////////////////
-// get application a window belongs to
+// helpers
 ///////////////////////
 
-// "dolphin"
-function getApp(current) {
-    if (!current) return "";
-    return String(current.resourceClass);
+function getApp(window) {
+    if (!window) {
+        return "";
+    }
+
+    return String(window.resourceClass || "");
+}
+
+function isOnCurrentDesktop(window) {
+    return window.desktops.length === 0 || window.desktops.includes(workspace.currentDesktop);
+}
+
+function isOnCurrentActivity(window) {
+    return window.activities.length === 0 || window.activities.includes(workspace.currentActivity);
+}
+
+function isVisibleHere(window) {
+    return window &&
+        !window.deleted &&
+        !window.minimized &&
+        isOnCurrentDesktop(window) &&
+        isOnCurrentActivity(window);
 }
 
 
 ///////////////////////
-// keep track of active application (to check whether app has been switched)
+// keep track of active application
 ///////////////////////
 
-// "dolphin"
-var prevActiveApp = ""
+let prevActiveApp = "";
 
-// set previously active application for initially active window
-setPrevActiveApp(workspace.activeClient);
+function setPrevActiveApp(window) {
+    if (!window) {
+        return;
+    }
 
-// set previously active application for recently activated window
-function setPrevActiveApp(current) {
-    if (!current) return;
-    prevActiveApp = getApp(current);
+    prevActiveApp = getApp(window);
 }
 
-// get previously active application
 function getPrevActiveApp() {
     return prevActiveApp;
 }
 
+setPrevActiveApp(workspace.activeWindow);
+
 
 ///////////////////////
-// keep track of windows belonging to same application in order of activation
+// keep track of windows belonging to the same application
 ///////////////////////
 
 // {"dolphin": [oldest window, ..., most recent window], "konsole": ...}
-var appGroups = {};
+const appGroups = {};
 
-// compute app groups for initially present windows
-workspace.clientList().forEach(window => updateAppGroups(window));
+function updateAppGroups(window) {
+    if (!window) {
+        return;
+    }
 
-// update app groups with given window
-function updateAppGroups(current) {
-    if (!current) return;
-    let app = getApp(current);
-    if (!appGroups[app]) appGroups[app] = [];
-    appGroups[app] = appGroups[app].filter(window => window && 
-        window != current);
-    appGroups[app].push(current);
-    debug("updating app group", appGroups[app].map(window => window.caption));
+    const app = getApp(window);
+    if (!app) {
+        return;
+    }
+
+    if (!appGroups[app]) {
+        appGroups[app] = [];
+    }
+
+    appGroups[app] = appGroups[app].filter(candidate =>
+        candidate && !candidate.deleted && candidate !== window
+    );
+    appGroups[app].push(window);
+
+    debug("updating app group", app, appGroups[app].map(candidate => candidate.caption));
 }
 
-// return other visible windows of same application as given window
-function getAppGroup(current) {
-    if (!current) return;
-    let appGroup = appGroups[getApp(current)].filter(window => window && 
-        !window.minimized && 
-        (window.x11DesktopIds.includes(workspace.currentDesktop) || window.x11DesktopIds.length == 0) &&
-        (window.activities.includes(workspace.currentActivity) || window.activities.length == 0));
-    debug("getting app group", appGroup.map(window => window.caption));
-    return appGroup;
+function removeFromAppGroups(window) {
+    if (!window) {
+        return;
+    }
+
+    for (const app in appGroups) {
+        appGroups[app] = appGroups[app].filter(candidate =>
+            candidate && !candidate.deleted && candidate !== window
+        );
+
+        if (appGroups[app].length === 0) {
+            delete appGroups[app];
+        }
+    }
 }
+
+function getAppGroup(window) {
+    if (!window) {
+        return [];
+    }
+
+    const app = getApp(window);
+    const group = (appGroups[app] || []).filter(isVisibleHere);
+
+    debug("getting app group", app, group.map(candidate => candidate.caption));
+    return group;
+}
+
+// Compute groups for windows already present when the script starts.
+workspace.windowList().forEach(updateAppGroups);
+
+// Keep bookkeeping current as windows are created and destroyed.
+workspace.windowAdded.connect(updateAppGroups);
+workspace.windowRemoved.connect(removeFromAppGroups);
 
 
 ///////////////////////
 // main
 ///////////////////////
 
-// when client is activated, auto-raise other windows of the same applicaiton
-workspace.clientActivated.connect(active => {
-    if (!active) return;
+workspace.windowActivated.connect(active => {
+    if (!active) {
+        return;
+    }
+
+    const app = getApp(active);
+
     debug("---------");
     debug("activated", active.caption);
-    debug("app", getApp(active));
-    // abort if application is ignored
-    if (ignoredApps.includes(getApp(active))) {
+    debug("app", app);
+
+    if (!app || ignoredApps.includes(app)) {
         debug("ignored");
         return;
     }
+
     updateAppGroups(active);
 
-    // if application was switched
     debug("previous app", getPrevActiveApp());
-    if (getApp(active) != getPrevActiveApp()) {
-        debug("app switched");
-        setPrevActiveApp(active);
-        // auto-raise other windows of same application
-        for (let window of getAppGroup(active)) {
-            debug("auto-raising", window.caption);
-            workspace.activeClient = window;
-        }
+
+    // Only raise the group when entering a different application. Switching
+    // between windows of the same application must not reshuffle the group.
+    if (app === getPrevActiveApp()) {
+        return;
+    }
+
+    debug("app switched");
+    setPrevActiveApp(active);
+
+    // KWin 6 exposes raiseWindow(), so the other windows can be brought to
+    // the front without temporarily moving keyboard focus through each one.
+    // The active window is the most recently activated member and therefore
+    // the last one raised, preserving it as the top window of the group.
+    for (const window of getAppGroup(active)) {
+        debug("auto-raising", window.caption);
+        workspace.raiseWindow(window);
     }
 });
