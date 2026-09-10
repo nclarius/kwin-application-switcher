@@ -4,7 +4,7 @@
 
 Extension for KDE's window manager to automatically raise all other visible windows of the same application together when activating one of them, effectively creating application groups to task-switch between.
 
-This gives rise to an application-centric task switching workflow as known from environments such as GNOME or MacOS, where an application’s windows are treated as a group, and task switching can take place at two levels: one mode for switching applications and one mode for switching between windows of an application. 
+This gives rise to an application-centric task switching workflow as known from environments such as GNOME or MacOS, where an application’s windows are treated as a group, and task switching can take place at two levels: one mode for switching applications and one mode for switching between windows of an application.
 
 Raising all windows collectively whenever the application is entered means that all windows belonging to the application are available at the front, and closing or minimizing a window will keep focus on the same application, as the window switched to will be the most recently active one of that application provided that there is any, rather than the most recently active window overall which may belong to a different application.
 
@@ -12,36 +12,53 @@ Seen in the screencast: Switching from Konsole back to Dolphin also brings the o
 
 ![screenshot](.img/screenshot.gif)
 
+This branch/package is updated for **KDE Plasma 6 / KWin 6** and uses the current KWin 6 scripting API.
+
+## What changed for Plasma 6
+
+- `workspace.clientList()` → `workspace.windowList()`
+- `workspace.activeClient` → `workspace.activeWindow`
+- `workspace.clientActivated` → `workspace.windowActivated`
+- `window.x11DesktopIds` → `window.desktops`
+- Added the required `"KPackageStructure": "KWin/Script"` package metadata
+- Updated command-line installation to `kpackagetool6` and `kwriteconfig6`
+- Uses `workspace.raiseWindow()` so grouped windows can be raised without briefly moving keyboard focus through every window
+- Cleans up bookkeeping when windows are added or removed
+
 ## Installation
 
-### Dependencies
-
-`kwin`.
-
-### Installation via graphical interface
-
-**Please make sure to select the most recent version (v1.6)** in the installation process.
-
-A [bug](https://bugs.kde.org/show_bug.cgi?id=453521) in Discover causes a wrong version to be installed, so using the installation module in System Settings instead is recommended.
-
-1. Install the script via *System Settings* > *Window Management* > *KWin Scripts* > *Get New Scripts …* > search for *Application Switcher* > *Install*.
-2. Enable the script by activating its checkbox, and apply the settings.
-
-### Installation via command line
+### Command line
 
 ```bash
-git clone https://github.com/nclarius/kwin-application-switcher.git
-cd kwin-application-switcher
 ./install.sh
 ```
+
+Or install manually:
+
+```bash
+kpackagetool6 --type=KWin/Script --install .
+kwriteconfig6 --file kwinrc --group Plugins --key applicationswitcherEnabled true
+qdbus6 org.kde.KWin /KWin reconfigure
+```
+
+If your distribution provides `qdbus` rather than `qdbus6`, use `qdbus` for the last command.
+
+### Graphical interface
+
+Package the script as a `.kwinscript` file, then install it from:
+
+**System Settings → Window Management → KWin Scripts → Install from File…**
+
+Enable **Application Switcher** and apply the settings.
 
 ## Usage
 
 ### Tips
 
 If you are intending to have one mode for switching applications and one mode for switching application windows, you may want to use the following settings:
-- Task Switcher (Alt+Tab popup):  
-  System Settings > Window Management > Task Switcher >  
+
+- Task Switcher (Alt+Tab popup):
+  System Settings > Window Management > Task Switcher >
   - Main (for switching between applications) >
     - Visualization: Large Icons
     - Only one window per application: checked
@@ -50,7 +67,7 @@ If you are intending to have one mode for switching applications and one mode fo
     - Visualization: Thumbnails
     - Only one window per application: unchecked
     - Shortcuts > Current application: set your preferred shortcut pair, e.g. Alt+(Shift+)`; All windows: leave empty
-- Task Manager (task bar in the panel):  
+- Task Manager (task bar in the panel):
   right-click on task bar > Configure Task Manager … > Behavior > Group: By application name; Combine into single button: checked
 
 ### Limitations
@@ -62,9 +79,9 @@ If you are intending to have one mode for switching applications and one mode fo
 
 © 2022-2023 Natalie Clarius \<natalie_clarius@yahoo.de\> [nclarius.github.io](https://nclarius.github.io)
 
-This work is licensed under the GNU General Public License v3.0.  
-This program comes with absolutely no warranty.  
-This is free software, and you are welcome to redistribute and/or modify it under certain conditions.  
+This work is licensed under the GNU General Public License v3.0.
+This program comes with absolutely no warranty.
+This is free software, and you are welcome to redistribute and/or modify it under certain conditions.
 
 Development was sponsored by user [RedBearAK](https://github.com/RedBearAK).
 
